@@ -1,0 +1,6 @@
+{
+    "validation.password.letters": "Trường :attribute phải chứa ít nhất 1 kí tự.",
+    "validation.password.mixed": "Trường :attribute phải chứa ít nhất 1 kí tự thường và 1 kí tự in hoa.",
+    "validation.password.numbers": "Trường :attribute phải chứa ít nhất 1 chữ số.",
+    "validation.password.symbols": "Trường :attribute phải chứa ít nhất 1 biểu tượng."
+}

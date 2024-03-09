@@ -1,0 +1,30 @@
+version: "3.7"
+
+services:
+  server-mobile:
+    image: registry.eofactory.ai:5000/thuanthanh/${PREFIX_DOCKER:-dev}/server-mobile:${VERSION:-0.0.2}
+    container_name: ${PREFIX_NAME_DOCKER:-dev}_thuanthanh_server-mobile
+    command: /var/www/docker-start.sh
+    restart: unless-stopped
+    build:
+      context: .
+    working_dir: /var/www/
+    ports:
+      - ${NGINX_PORT:-80}:80
+    volumes:
+      - ${PATH_STORAGE:-./storage}/app:/var/www/storage/app
+      - ${PATH_LOG:-./storage/logs}:/var/www/storage/logs
+    environment:
+      - APP_DEBUG=${APP_DEBUG:-false}
+      - APP_ENV=${APP_DEBUG:-production}
+      - DB_CONNECTION=pgsql
+      - DB_DATABASE=${DB_DATABASE:-thuanthanh-test}
+      - DB_HOST=${DB_HOST:-db-pgsql}
+      - DB_PASSWORD=${PGSQL_PASSWORD:-thuanthanh}
+    networks:
+      - database_thuanthanh_db
+      - default
+
+networks:
+  database_thuanthanh_db:
+    external: true

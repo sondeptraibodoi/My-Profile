@@ -1,0 +1,51 @@
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_DEPTH: 0
+
+stages:
+  - build
+  - deploy
+  - reset-nginx
+
+.distributed-dev:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+
+.distributed-test:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "test"
+
+.distributed-all:
+  rules:
+    - if: ($CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "test")
+
+dev-build-docker-job:
+  stage: build
+  script:
+    - docker-compose --env-file docker-compose.dev.env build
+    - docker-compose --env-file docker-compose.test.env build
+  extends: .distributed-dev
+
+dev-deploy-job:
+  stage: deploy
+  script:
+    - cp -f ./docker-compose.yml ${DEV_CODE_PATH_TO_PROJECT}/mobile-dev/docker-compose.yml
+    - cp -f ./docker-compose.dev.env ${DEV_CODE_PATH_TO_PROJECT}/mobile-dev/.env
+    - cd ${DEV_CODE_PATH_TO_PROJECT}/mobile-dev
+    - docker-compose up -d
+  extends: .distributed-dev
+
+test-build-docker-job:
+  stage: build
+  script:
+    - docker-compose --env-file docker-compose.test.env build
+  extends: .distributed-test
+
+test-deploy-job:
+  stage: deploy
+  script:
+    - cp -f ./docker-compose.yml ${TEST_CODE_PATH_TO_PROJECT}/mobile-test/docker-compose.yml
+    - cp -f ./docker-compose.test.env ${TEST_CODE_PATH_TO_PROJECT}/mobile-test/.env
+    - cd ${TEST_CODE_PATH_TO_PROJECT}/mobile-test
+    - docker-compose up -d
+  extends: .distributed-test
